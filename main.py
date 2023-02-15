@@ -51,10 +51,35 @@ def get_channel_videos():
         if next_page_token is None:
             break
 
-    for video in videos:
-        print(video['snippet']['title'])
+    # for video in videos:
+    #     print(video['snippet']['title'])
         
+    return videos
+
+def get_video_ids(videos):
+    return list(map(lambda x:x['snippet']['resourceId']['videoId'], videos))
+
+def get_videos_stats(video_ids):
+    youtube = build('youtube', 'v3', developerKey=env('YOUTUBE_API_KEY'))
+
+    stats = []
+    for i in range(0, len(video_ids), 50):
+        response = youtube.videos().list(
+            part='statistics', id=','.join(video_ids[i:i+50])
+        ).execute()
+
+        stats += response['items']
+
+    return stats
+
+
+def get_most_liked_video(stats):
+    return sorted(stats, key=lambda x:int(x['statistics']['likeCount']), reverse=True)
 
 
 # main()
-get_channel_videos()
+videos = get_channel_videos()
+video_ids = get_video_ids(videos)
+statistics = get_videos_stats(video_ids)
+most_liked_video = get_most_liked_video(statistics)
+print(most_liked_video[0])
