@@ -28,5 +28,33 @@ def main():
         print(item['snippet']['title'], item['snippet']['publishedAt'], item['id']['videoId'])
 
 
+def get_channel_videos():
+    youtube = build('youtube', 'v3', developerKey=env('YOUTUBE_API_KEY'))
+    channelDetails = youtube.channels().list(
+        id='UCkUq-s6z57uJFUFBvZIVTyg',
+        part='contentDetails'
+    ).execute()
 
-main()
+    playlist_id = channelDetails['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+
+    videos = []
+    next_page_token = None
+
+    while 1:
+        response = youtube.playlistItems().list(
+            playlistId=playlist_id, part='snippet', maxResults=50, pageToken=next_page_token
+        ).execute()
+        
+        videos += response['items']
+        next_page_token = response.get('nextPageToken')
+
+        if next_page_token is None:
+            break
+
+    for video in videos:
+        print(video['snippet']['title'])
+        
+
+
+# main()
+get_channel_videos()
