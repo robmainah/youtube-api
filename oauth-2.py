@@ -64,9 +64,14 @@ def comment_on_video(auth):
     print(response)
     
 
+def save_google_authentication(auth):
+    # create pickle file to save auth
+
+
 # auth = get_google_authorization()
 # like_a_video(auth)
 # like_a_video(auth)
 # get_video_comments()
-get_video_comments_by_search_term()
+# get_video_comments_by_search_term()
 # comment_on_video(auth)
+save_google_authentication()
