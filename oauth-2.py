@@ -36,16 +36,16 @@ def get_video_comments():
 def comment_on_video(auth):
     request = auth.commentThreads().insert(
         part='snippet',
-        body={
-            "snippet": {
-                "videoId": 'jWh0FaRRZC4',
-                "topLevelComment": {
-                    "snippet": {
-                        "textOriginal": "I love the video"
-                    }
-                }
-            }
-        }
+        body=dict(
+            snippet=dict(
+                videoId='jWh0FaRRZC4',
+                topLevelComment=dict(
+                    snippet=dict(
+                        textOriginal="I just love the video"
+                    )
+                )
+            )
+        )
     )
     response = request.execute()
 
