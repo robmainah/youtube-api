@@ -1,5 +1,6 @@
 from apiclient.discovery import build
-from datetime import datetime
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 import environ
 
 env = environ.Env()
@@ -28,12 +29,10 @@ def main():
         print(item['snippet']['title'], item['snippet']['publishedAt'], item['id']['videoId'])
 
 
-def get_channel_videos():
+def get_channel_videos(channel_id, part='id,snippet', limit=10):
     youtube = build('youtube', 'v3', developerKey=env('YOUTUBE_API_KEY'))
     channelDetails = youtube.channels().list(
-        id='UCkUq-s6z57uJFUFBvZIVTyg',
-        part='contentDetails'
-    ).execute()
+                    id=channel_id, part='contentDetails').execute()
 
     playlist_id = channelDetails['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
@@ -42,13 +41,13 @@ def get_channel_videos():
 
     while 1:
         response = youtube.playlistItems().list(
-            playlistId=playlist_id, part='snippet', maxResults=50, pageToken=next_page_token
-        ).execute()
+            playlistId=playlist_id, part=part, maxResults=min(limit, 50),
+            pageToken=next_page_token).execute()
         
         videos += response['items']
         next_page_token = response.get('nextPageToken')
 
-        if next_page_token is None:
+        if next_page_token is None or len(videos) >= limit:
             break
 
     # for video in videos:
@@ -74,12 +73,39 @@ def get_videos_stats(video_ids):
 
 
 def get_most_liked_video(stats):
-    return sorted(stats, key=lambda x:int(x['statistics']['likeCount']), reverse=True)
+    items = sorted(stats, key=lambda x:int(x['statistics']['likeCount']), reverse=True)
+    print(items[0])
+
+
+def get_channel(channel_name):
+    youtube = build('youtube', 'v3', developerKey=env('YOUTUBE_API_KEY'))
+    results = youtube.search().list(
+        part='id, snippet', q=channel_name, type='channel_name'
+    ).execute()
+
+    return results['items'][0]
+
+
+def parse_publish_timestamp(video):
+    # return datetime.fromisoformat(video['snippet']['publishedAt']) + timedelta(hours=1, minutes=0)
+    return datetime.fromisoformat(video['snippet']['publishedAt'])
+
+
+def plot_graph(publish_times):
+    plt.hist(publish_times, bins=24)
+    plt.xticks(range(24))
+    plt.show()
 
 
 # main()
-videos = get_channel_videos()
-video_ids = get_video_ids(videos)
-statistics = get_videos_stats(video_ids)
-most_liked_video = get_most_liked_video(statistics)
-print(most_liked_video[0])
+# videos = get_channel_videos('UC-lHJZR3Gqxm24_Vd_AJ5Yw')
+# video_ids = get_video_ids(videos)
+# statistics = get_videos_stats(video_ids)
+# most_liked_video = get_most_liked_video(statistics)
+
+channel_id = get_channel('t-series')['id']['channelId']
+videos = get_channel_videos(channel_id, limit=500)
+published_timestamps = [parse_publish_timestamp(video) for video in videos]
+publish_times = [time.hour + time.minute/60 for time in published_timestamps]
+plot_graph(publish_times)
+# print(published_timestamps)
