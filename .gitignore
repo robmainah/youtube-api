@@ -5,3 +5,4 @@ youtube-api-1-venv/
 client_secret.json
 
 # picke file
+*.pickle

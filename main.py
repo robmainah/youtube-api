@@ -9,16 +9,16 @@ environ.Env.read_env()
 def main():
     youtube = build('youtube', 'v3', developerKey=env('YOUTUBE_API_KEY'))
 
-    start_time = datetime(year=2005, month=1, day=1).strftime('%Y-%m-%dT%H:%M:%SZ')
-    end_time = datetime(year=2008, month=2, day=1).strftime('%Y-%m-%dT%H:%M:%SZ')
+    # start_time = datetime(year=2005, month=1, day=1).strftime('%Y-%m-%dT%H:%M:%SZ')
+    # end_time = datetime(year=2008, month=2, day=1).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     request = youtube.search().list(
-        q='python programming',
+        q='matiangi foreign interview -citizen',
         type='video',
         part='snippet',
         maxResults=20,
-        publishedAfter=start_time,
-        publishedBefore=end_time
+        # publishedAfter=start_time,
+        # publishedBefore=end_time
     )
 
     response = request.execute()
@@ -97,15 +97,15 @@ def plot_graph(publish_times):
     plt.show()
 
 
-# main()
+main()
 # videos = get_channel_videos('UC-lHJZR3Gqxm24_Vd_AJ5Yw')
 # video_ids = get_video_ids(videos)
 # statistics = get_videos_stats(video_ids)
 # most_liked_video = get_most_liked_video(statistics)
 
-channel_id = get_channel('t-series')['id']['channelId']
-videos = get_channel_videos(channel_id, limit=500)
-published_timestamps = [parse_publish_timestamp(video) for video in videos]
-publish_times = [time.hour + time.minute/60 for time in published_timestamps]
-plot_graph(publish_times)
+# channel_id = get_channel('t-series')['id']['channelId']
+# videos = get_channel_videos(channel_id, limit=500)
+# published_timestamps = [parse_publish_timestamp(video) for video in videos]
+# publish_times = [time.hour + time.minute/60 for time in published_timestamps]
+# plot_graph(publish_times)
 # print(published_timestamps)
